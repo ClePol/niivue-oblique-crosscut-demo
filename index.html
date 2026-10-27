@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Oblique versus aligned surface demo</title>
+    <style>
+      body { margin: 0; padding: 16px; font: 16px system-ui, sans-serif; background: #111; color: #eee; }
+      h1 { font-size: 18px; margin: 0 0 12px; }
+      .panels { display: flex; gap: 12px; flex-wrap: wrap; }
+      canvas { display: block; width: 480px; height: 480px; background: #000; }
+    </style>
+  </head>
+  <body>
+    <h1>Oblique versus aligned surface demo</h1>
+    <div class="panels">
+      <canvas id="aligned"></canvas>
+      <canvas id="oblique"></canvas>
+    </div>
+
+    <script type="module">
+      import NiiVue from './vendor/niivue.js'
+
+      // Scanner-RAS point through the cortex in both panels.
+      const START_MM = [26.2, 12.9, 18.3]
+      const MESHES = [
+        { url: './data/rh.pial', color: [0.2, 1.0, 0.2, 1], shaderType: 'phong', sliceShaderType: 'crosscut' },
+        { url: './data/lh.pial', color: [0.3, 0.6, 1.0, 1], shaderType: 'phong', sliceShaderType: 'crosscut' },
+      ]
+
+      async function makePanel(canvasId, volumeUrl) {
+        const nv = new NiiVue({ backgroundColor: [0, 0, 0, 1] })
+        await nv.attachToCanvas(document.getElementById(canvasId))
+        nv.sliceType = 0 // axial
+        nv.showRender = 0 // 2D only
+        await nv.loadVolumes([{ url: volumeUrl }])
+        await nv.loadMeshes(MESHES)
+        nv.setCrosshairPos(START_MM)
+        return nv
+      }
+
+      await makePanel('aligned', './data/T1.mgz')
+      await makePanel('oblique', './data/T1_oblique20.nii.gz')
+    </script>
+  </body>
+</html>
